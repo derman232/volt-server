@@ -23,14 +23,23 @@ PLAID_ENV = os.getenv('PLAID_ENV', 'sandbox')
 # able to create and retrieve asset reports.
 PLAID_PRODUCTS = os.getenv('PLAID_PRODUCTS', 'transactions')
 
-
-
 # PLAID_COUNTRY_CODES is a comma-separated list of countries for which users
 # will be able to select institutions from.
 PLAID_COUNTRY_CODES = os.getenv('PLAID_COUNTRY_CODES', 'US,CA,GB,FR,ES')
 
 # days in a month
 MONTH_DAYS = 30
+
+# cash balance factor, reduce max limit based on cash balance to 25%
+CASH_FACTOR = 0.1
+
+# maximum monthly limit
+MAX_LIMIT = 2600
+
+# day limit base
+DAY_BASE = 52
+WEEK_FACTOR = 1
+WEEKEND_FACTOR = 3
 
 client = plaid.Client(client_id = PLAID_CLIENT_ID, secret=PLAID_SECRET,
                       public_key=PLAID_PUBLIC_KEY, environment=PLAID_ENV, api_version='2019-05-29')
@@ -39,12 +48,31 @@ client = plaid.Client(client_id = PLAID_CLIENT_ID, secret=PLAID_SECRET,
 def underwrite_decision(data, liabilities):
   total_balances = check_accounts(data)
   txn_data = check_transactions(data)
+  total_income = txn_data["total_income"]
+  total_discretionary = txn_data["total_discretionary"]
   payments = check_liabilities(liabilities)
+  net_income = total_income - total_discretionary - payments
 
-  print("Total Balances: %d" % total_balances)
+  print("Total Cash Balances: %d" % total_balances)
+  print("Total Cash * Factor: %d" % (total_balances * CASH_FACTOR))
   print("Liability Payments: %d" % payments)
-  print("Total Income: %d" % txn_data["total_income"])
-  print("Total Discretionary: %d" % txn_data["total_discretionary"])
+  print("Total Income: %d" % total_income)
+  print("Total Discretionary Spend: %d" % total_discretionary)
+  print("Net Income: %d" % net_income)
+
+  limit = min(
+    max(
+      net_income,
+      total_discretionary
+    ),
+    MAX_LIMIT,
+    total_balances * CASH_FACTOR,
+  )
+
+  print("Limit: %d" % limit)
+  print("Base: %d" % (limit / DAY_BASE))
+  print("Mon - Thurs: %d" % (limit / DAY_BASE * WEEK_FACTOR))
+  print("Fri - Sat: %d" % (limit / DAY_BASE * WEEKEND_FACTOR))
 
 
 

@@ -72,6 +72,12 @@ def get_auth():
   pretty_print_response(auth_response)
   return jsonify({'error': None, 'auth': auth_response})
 
+# Make an underwriting decision
+# https://plaid.com/docs/#transactions
+@app.route('/underwrite', methods=['GET'])
+def get_underwrite():
+  return jsonify({'error': None, 'underwrite': [{    'date': "10-10-10",    'day': "hello",    'limit': 50  }]})
+
 # Retrieve Transactions for an Item
 # https://plaid.com/docs/#transactions
 @app.route('/transactions', methods=['GET'])

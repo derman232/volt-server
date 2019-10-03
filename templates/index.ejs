@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Plaid Quickstart Example</title>
+<title>Volt Undewrite</title>
 <link rel="stylesheet" href="https://threads.plaid.com/threads.css">
 
 <link rel="stylesheet" type="text/css" href="/static/style.css">
@@ -13,12 +13,12 @@
     <div class="grid">
       <div class="grid__column grid__column--is-twelve-columns">
         <div id="banner" class="everpresent-content">
-          <h1 class="everpresent-content__heading">Plaid Quickstart</h1>
+          <h1 class="everpresent-content__heading">Volt Undewrite</h1>
           <p id="intro" class="everpresent-content__subheading">
-            An example application that outlines an end-to-end integration with Plaid
+            An example application that produces an underwriting outcome based on transaction data.
           </p>
           <p id="steps" class="everpresent-content__subheading">
-           Success! You just created an Item by linking your account.
+           Success! You have linked an account.
           </p>
         </div>
 
@@ -47,6 +47,25 @@
           <p>Now that you have an access_token you can make all of the following API requests:</p>
 
           <div class="box">
+            <h3 class="box__heading">Underwrite</h3>
+            <!--Underwrite -->
+            <div class="item-data-row">
+              <div class="item-data-row__left">
+                <div class="item-data-row__request-type">post</div>
+              </div>
+              <div class="item-data-row__center">
+                <div class="item-data-row__nicename">Underwrite</div>
+                <div class="item-data-row__endpoint">/underwrite/get</div>
+                <div class="item-data-row__description">Retrieve daily limits for the next 7 days</div>
+              </div>
+              <div class="item-data-row__right">
+                <button id="get-underwrite-btn" class="button button--is-small button--is-default button--is-full-width">Send request</button>
+              </div>
+              <div class="item-data-row__response">
+                <table><tbody id="get-underwrite-data"></tbody></table>
+              </div>
+            </div>
+
             <h3 class="box__heading">Products</h3>
 
             <!-- Auth -->
@@ -273,6 +292,35 @@
     $('#link-btn').on('click', function(e) {
       handler.open();
     });
+
+    $('#get-underwrite-btn').on('click', function(e) {
+      $.get('/underwrite', function(data) {
+        $('#get-accounts-data').slideUp(function() {
+          if (data.error != null) {
+            displayError(this, data.error);
+            return;
+          }
+          console.log(data);
+
+          $('#get-underwrite-data').slideUp(function() {
+            var html = '<tr><td><strong>Date</strong></td><td><strong>Day</strong></td><td><strong>Limit</strong></td></tr>';
+            data.underwrite.forEach(function(txn, idx) {
+              html += '<tr>';
+              html += '<td>' + txn.date + '</td>';
+              html += '<td>' + txn.day + '</td>';
+              html += '<td>$' + txn.limit + '</td>';
+              html += '</tr>';
+            });
+
+            $(this).slideUp(function() {
+              $(this).html(html).slideDown();
+            });
+          });
+
+        });
+      });
+    });
+
 
     $('#get-accounts-btn').on('click', function(e) {
       $.get('/accounts', function(data) {

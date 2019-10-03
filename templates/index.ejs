@@ -302,9 +302,32 @@
           }
           console.log(data);
 
-          $('#get-underwrite-data').slideUp(function() {
+          if (data.error != null && data.error.error_code != null) {
+            // Format the error
+            var errorHtml = '<div class="inner"><p>' +
+              '<strong>' + data.error.error_code + ':</strong> ' +
+              (data.error.display_message == null ? data.error.error_message : data.error.display_message) + '</p></div>';
+
+            if (data.error.error_code === 'PRODUCT_NOT_READY') {
+              // Add additional context for `PRODUCT_NOT_READY` errors
+              errorHtml += '<div class="inner"><p>Note: The PRODUCT_NOT_READY ' +
+                'error is returned when a request to retrieve Transaction data ' +
+                'is made before Plaid finishes the <a href="https://plaid.com/' +
+                'docs/quickstart/#transaction-data-with-webhooks">initial ' +
+                'transaction pull.</a></p></div>';
+            }
+            // Render the error
+            $('#get-underwrite-data').slideUp(function () {
+              $(this).slideUp(function () {
+                $(this).html(errorHtml).slideDown();
+              });
+            });
+          } else {
+
+
+          $('#get-underwrite-data').slideUp(function () {
             var html = '<tr><td><strong>Date</strong></td><td><strong>Day</strong></td><td><strong>Limit</strong></td></tr>';
-            data.underwrite.forEach(function(txn, idx) {
+            data.underwrite.forEach(function (txn, idx) {
               html += '<tr>';
               html += '<td>' + txn.date + '</td>';
               html += '<td>' + txn.day + '</td>';
@@ -312,10 +335,11 @@
               html += '</tr>';
             });
 
-            $(this).slideUp(function() {
+            $(this).slideUp(function () {
               $(this).html(html).slideDown();
             });
           });
+        }
 
         });
       });

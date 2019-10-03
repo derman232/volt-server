@@ -76,6 +76,14 @@ def get_auth():
 # https://plaid.com/docs/#transactions
 @app.route('/underwrite', methods=['GET'])
 def get_underwrite():
+  # Pull transactions for the last 30 days
+  start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
+  end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
+  try:
+    transactions_response = client.Transactions.get(access_token, start_date, end_date)
+  except plaid.errors.PlaidError as e:
+    return jsonify(format_error(e))
+
   return jsonify({'error': None, 'underwrite': [{    'date': "10-10-10",    'day': "hello",    'limit': 50  }]})
 
 # Retrieve Transactions for an Item

@@ -83,7 +83,7 @@ def get_underwrite():
     transactions_response = client.Transactions.get(access_token, start_date, end_date)
   except plaid.errors.PlaidError as e:
     return jsonify(format_error(e))
-
+  
   return jsonify({'error': None, 'underwrite': [{    'date': "10-10-10",    'day': "hello",    'limit': 50  }]})
 
 # Retrieve Transactions for an Item

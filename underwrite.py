@@ -29,6 +29,9 @@ PLAID_COUNTRY_CODES = os.getenv('PLAID_COUNTRY_CODES', 'US,CA,GB,FR,ES')
 
 # days in a month
 MONTH_DAYS = 30
+FULL_WEEK_DAYS = 7
+WEEK_DAYS_COUNT = 4
+WEEKEND_DAYS_COUNT = 3
 
 # cash balance factor, reduce max limit based on cash balance to 25%
 CASH_FACTOR = 0.1
@@ -69,10 +72,32 @@ def underwrite_decision(data, liabilities):
     total_balances * CASH_FACTOR,
   )
 
-  print("Limit: %d" % limit)
-  print("Base: %d" % (limit / DAY_BASE))
-  print("Mon - Thurs: %d" % (limit / DAY_BASE * WEEK_FACTOR))
-  print("Fri - Sat: %d" % (limit / DAY_BASE * WEEKEND_FACTOR))
+  base = limit / DAY_BASE
+  week_limit = base * WEEK_FACTOR
+  weekend_limit = base * WEEKEND_FACTOR
+  print("Mon - Thurs: %d" % week_limit)
+  print("Fri - Sat: %d" % weekend_limit)
+
+  today = datetime.date.today()
+  cur_day = today
+
+  output = []
+  for x in range(0, FULL_WEEK_DAYS):
+    limit = 0
+    if (cur_day.weekday() < WEEK_DAYS_COUNT):
+      limit = week_limit
+    else:
+      limit = weekend_limit
+
+    output.append({
+      "date": cur_day.strftime("%Y-%m-%d"),
+      "day": cur_day.strftime("%A"),
+      "limit": limit
+    })
+
+    cur_day += datetime.timedelta(days=1)
+
+  pp.pprint(output)
 
 
 

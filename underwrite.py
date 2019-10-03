@@ -29,15 +29,54 @@ PLAID_PRODUCTS = os.getenv('PLAID_PRODUCTS', 'transactions')
 # will be able to select institutions from.
 PLAID_COUNTRY_CODES = os.getenv('PLAID_COUNTRY_CODES', 'US,CA,GB,FR,ES')
 
+# days in a month
+MONTH_DAYS = 30
+
 client = plaid.Client(client_id = PLAID_CLIENT_ID, secret=PLAID_SECRET,
                       public_key=PLAID_PUBLIC_KEY, environment=PLAID_ENV, api_version='2019-05-29')
 
 
-def underwrite_decision(data):
+def underwrite_decision(data, liabilities):
   total_balances = check_accounts(data)
   txn_data = check_transactions(data)
+  payments = check_liabilities(liabilities)
 
   print("Total Balances: %d" % total_balances)
+  print("Liability Payments: %d" % payments)
+  print("Total Income: %d" % txn_data["total_income"])
+  print("Total Discretionary: %d" % txn_data["total_discretionary"])
+
+
+
+def check_liabilities(data):
+  # ignore credit card liabilities, included in spend data
+  student = None
+
+  if (data.has_key("liabilities")):
+    liabilities = data["liabilities"]
+    if liabilities.has_key("student"): 
+      student = liabilities["student"]
+
+  amount = 0
+  if student is not None:
+    for liability in student:
+      cur_amount = 0
+      last_payment_date = liability["last_payment_date"]
+      next_payment_date = liability["next_payment_due_date"]
+      last_payment_date = datetime.datetime.strptime(last_payment_date, '%Y-%m-%d')
+      next_payment_date = datetime.datetime.strptime(next_payment_date, '%Y-%m-%d')
+
+      days = (next_payment_date - last_payment_date).days
+
+      if liability.has_key("last_statement_balance"):
+        cur_amount += liability["last_statement_balance"]
+      else:
+        cur_amount += liability["last_payment_amount"]
+      
+      cur_amount *= (MONTH_DAYS * 1.0 / days)
+      amount += cur_amount
+
+  return amount
 
 def check_accounts(data):
   total_balances = 0
@@ -81,13 +120,10 @@ def check_transactions(data):
         continue
 
       total_discretionary += txn["amount"]
-      pp.pprint(txn)
 
-  print("Total Income: %d" % total_income)
-  print("Total Discretionary: %d" % total_discretionary)
   return {
-    total_income: total_income,
-    total_discretionary: total_income,
+    "total_income": total_income,
+    "total_discretionary": total_discretionary,
   }
  
 try:
@@ -100,9 +136,10 @@ start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-
 end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
 try:
   data = client.Transactions.get(access_token, start_date, end_date)
+  liabilities = client.Liabilities.get(access_token)
 except plaid.errors.PlaidError as e:
   exit(e)
 
-underwrite_decision(data)
+underwrite_decision(data, liabilities)
 
 

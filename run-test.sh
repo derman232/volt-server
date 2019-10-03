@@ -4,4 +4,5 @@ PLAID_PUBLIC_KEY=d631a097bd675a4efd3ee33a278630 \
 PLAID_PRODUCTS=transactions \
 PLAID_COUNTRY_CODES=US,CA,GB,FR,ES \
 PLAID_ENV=sandbox \
+access_token=access-sandbox-fa2f4574-03fe-4157-a94f-bb5a9ea01c7e \
 python underwrite.py

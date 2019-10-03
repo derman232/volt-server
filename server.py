@@ -9,6 +9,8 @@ from flask import render_template
 from flask import request
 from flask import jsonify
 
+from underwrite import underwrite_decision
+
 app = Flask(__name__)
 
 
@@ -80,11 +82,14 @@ def get_underwrite():
   start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
   end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
   try:
-    transactions_response = client.Transactions.get(access_token, start_date, end_date)
+    transactions = client.Transactions.get(access_token, start_date, end_date)
+    liabilities = client.Liabilities.get(access_token)
   except plaid.errors.PlaidError as e:
     return jsonify(format_error(e))
   
-  return jsonify({'error': None, 'underwrite': [{    'date': "10-10-10",    'day': "hello",    'limit': 50  }]})
+  underwrite_result = underwrite_decision(transactions, liabilities)
+  
+  return jsonify({'error': None, 'underwrite': underwrite_result})
 
 # Retrieve Transactions for an Item
 # https://plaid.com/docs/#transactions

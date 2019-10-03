@@ -7,7 +7,7 @@ import time
 import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
-access_token = "access-sandbox-fa2f4574-03fe-4157-a94f-bb5a9ea01c7e"
+access_token = os.getenv('access_token')
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
 PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID')
@@ -56,12 +56,12 @@ def underwrite_decision(data, liabilities):
   payments = check_liabilities(liabilities)
   net_income = total_income - total_discretionary - payments
 
-  print("Total Cash Balances: %d" % total_balances)
-  print("Total Cash * Factor: %d" % (total_balances * CASH_FACTOR))
-  print("Liability Payments: %d" % payments)
-  print("Total Income: %d" % total_income)
-  print("Total Discretionary Spend: %d" % total_discretionary)
-  print("Net Income: %d" % net_income)
+  # print("Total Cash Balances: %d" % total_balances)
+  # print("Total Cash * Factor: %d" % (total_balances * CASH_FACTOR))
+  # print("Liability Payments: %d" % payments)
+  # print("Total Income: %d" % total_income)
+  # print("Total Discretionary Spend: %d" % total_discretionary)
+  # print("Net Income: %d" % net_income)
 
   limit = min(
     max(
@@ -75,8 +75,6 @@ def underwrite_decision(data, liabilities):
   base = limit / DAY_BASE
   week_limit = base * WEEK_FACTOR
   weekend_limit = base * WEEKEND_FACTOR
-  print("Mon - Thurs: %d" % week_limit)
-  print("Fri - Sat: %d" % weekend_limit)
 
   today = datetime.date.today()
   cur_day = today
@@ -98,6 +96,7 @@ def underwrite_decision(data, liabilities):
     cur_day += datetime.timedelta(days=1)
 
   pp.pprint(output)
+  return output
 
 
 

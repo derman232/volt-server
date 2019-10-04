@@ -1,14 +1,22 @@
-## Volt Underwrite (Using Plaid)
+## Volt Underwrite (ft. Plaid)
 
-Volt provides a credit card with a *daily limit*, gone are the days of large and irresponsible $1,000+ limits, simply have a $25 limit for Monday, and a $50 limit for Tuesday. 
+Volt provides a **credit card** with a **daily (not monthly) limit**, gone are the days of large and irresponsible $1,000+ limits, simply have a $25 limit for Monday, and a $50 limit for Tuesday. 
 
 Volt underwrites **daily** with limits changing automatically as your personal circumstances change. 
 
 We use Machine Learning to predict spend / income and augment that with more traditional undewriting methods to compute daily limits suitable to you. 
 
-Choose the response Credit Card with Volt. 
+Manage your limit and pay your account with our app: [https://github.com/derman232/volt-app](https://github.com/derman232/volt-app)
 
-### Quickstart
+* Receive daily notifications informing you of your limit today
+* See your limits for the week
+* Earn rewards and points which can be applied to your account when you Pay as cashback
+* Manually adjust limits if you have accrued unusued credit limits in the month (will cost you cashback)
+* Pay your account
+
+[Choose the response Credit Card with Volt.](https://docs.google.com/presentation/d/10_5U09o-VN7zTYVyC2Y7AfPqcqHyDqmnsRB7K-maYsE/edit?usp=sharing)
+
+## Quickstart
 
 ``` bash
 PLAID_CLIENT_ID='CLIENT_ID' \
@@ -23,7 +31,7 @@ python server.py
 
 Connect an account and click on "Underwrite" --> "Send Request" to receive a daily underwriting decision for the next 7 days. 
 
-### Undewriting overview
+## Undewriting overview
 
 #### Key inputs
 

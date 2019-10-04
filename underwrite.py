@@ -65,7 +65,7 @@ def underwrite_decision(data, liabilities):
   # print("Total Income: %d" % total_income)
   # print("Total Discretionary Spend: %d" % total_discretionary)
   # print("Net Income: %d" % net_income)
-  print("Predicted spend: ", predicted_spend)
+  # print("Predicted spend: ", predicted_spend)
 
   limit = min(
     max(
@@ -84,12 +84,19 @@ def underwrite_decision(data, liabilities):
   cur_day = today
 
   output = []
+
+  total_to_spend = week_limit * WEEK_DAYS_COUNT + weekend_limit * WEEKEND_DAYS_COUNT
+
   for x in range(0, FULL_WEEK_DAYS):
     limit = 0
+    # choose the maximum of our calculated limit or the predicted spend requirement
+    # if no spend left to allocate (due to high earlier predicted spend, set to 0)
     if (cur_day.weekday() < WEEK_DAYS_COUNT):
-      limit = week_limit
+      limit = max(min(max(week_limit, predicted_spend[x]), total_to_spend),0)
     else:
-      limit = weekend_limit
+      limit = max(min(max(weekend_limit, predicted_spend[x]), total_to_spend),0)
+    
+    total_to_spend -= limit
 
     output.append({
       "date": cur_day.strftime("%Y-%m-%d"),

@@ -13,7 +13,6 @@ from random import random
 import pandas as pd
 
 pp = pprint.PrettyPrinter(indent=4)
-access_token = os.getenv('access_token')
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
 PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID')
@@ -49,7 +48,7 @@ def difference(dataset, interval=1):
 def inverse_difference(history, yhat, interval=1):
 	return yhat + history[-interval]
 
-def predict_spend():
+def predict_spend(access_token):
   # Pull transactions for the last 30 days
   start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-365))
   end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())

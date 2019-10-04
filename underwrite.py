@@ -50,14 +50,14 @@ client = plaid.Client(client_id = PLAID_CLIENT_ID, secret=PLAID_SECRET,
                       public_key=PLAID_PUBLIC_KEY, environment=PLAID_ENV, api_version='2019-05-29')
 
 
-def underwrite_decision(data, liabilities):
+def underwrite_decision(data, liabilities, access_token):
   total_balances = check_accounts(data)
   txn_data = check_transactions(data)
   total_income = txn_data["total_income"]
   total_discretionary = txn_data["total_discretionary"]
   payments = check_liabilities(liabilities)
   net_income = total_income - total_discretionary - payments
-  predicted_spend = predict_spend()
+  predicted_spend = predict_spend(access_token)
 
   # print("Total Cash Balances: %d" % total_balances)
   # print("Total Cash * Factor: %d" % (total_balances * CASH_FACTOR))
@@ -189,20 +189,20 @@ def check_transactions(data):
     "total_discretionary": total_discretionary,
   }
  
-try:
-  client.Auth.get(access_token)
-except ItemError as e:
-  exit(e)
-
-# Pull transactions for the last 30 days
-start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
-end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
-try:
-  data = client.Transactions.get(access_token, start_date, end_date)
-  liabilities = client.Liabilities.get(access_token)
-except plaid.errors.PlaidError as e:
-  exit(e)
-
-underwrite_decision(data, liabilities)
+#try:
+#  client.Auth.get(access_token)
+#except ItemError as e:
+#  exit(e)
+#
+## Pull transactions for the last 30 days
+#start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
+#end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
+#try:
+#  data = client.Transactions.get(access_token, start_date, end_date)
+#  liabilities = client.Liabilities.get(access_token)
+#except plaid.errors.PlaidError as e:
+#  exit(e)
+#
+#underwrite_decision(data, liabilities)
 
 

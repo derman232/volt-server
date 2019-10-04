@@ -87,7 +87,7 @@ def get_underwrite():
   except plaid.errors.PlaidError as e:
     return jsonify(format_error(e))
   
-  underwrite_result = underwrite_decision(transactions, liabilities)
+  underwrite_result = underwrite_decision(transactions, liabilities, access_token)
   
   return jsonify({'error': None, 'underwrite': underwrite_result})
 

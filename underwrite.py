@@ -6,6 +6,8 @@ import json
 import time
 import pprint
 
+from prediction import predict_spend
+
 pp = pprint.PrettyPrinter(indent=4)
 access_token = os.getenv('access_token')
 
@@ -55,6 +57,7 @@ def underwrite_decision(data, liabilities):
   total_discretionary = txn_data["total_discretionary"]
   payments = check_liabilities(liabilities)
   net_income = total_income - total_discretionary - payments
+  predicted_spend = predict_spend()
 
   # print("Total Cash Balances: %d" % total_balances)
   # print("Total Cash * Factor: %d" % (total_balances * CASH_FACTOR))
@@ -62,6 +65,7 @@ def underwrite_decision(data, liabilities):
   # print("Total Income: %d" % total_income)
   # print("Total Discretionary Spend: %d" % total_discretionary)
   # print("Net Income: %d" % net_income)
+  print("Predicted spend: ", predicted_spend)
 
   limit = min(
     max(
